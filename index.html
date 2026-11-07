@@ -1,4 +1,370 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Albin Sam</title></head>
-<body><h1>Albin Sam</h1>
-<p>Personal projects and automation tools by Albin Sam.</p>
-<p><a href="/privacy.html">Privacy Policy</a></p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>albinsam.tech · Under construction</title>
+<meta name="description" content="albinsam.tech is under construction. Something new is being built here.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚧</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cycle: 24s;                       /* one full day + night */
+    --offset: calc(var(--cycle) * -0.84); /* start the page in the morning */
+    --horizon: 32vh;
+    --ink: #1c1c1c;
+    --yellow: #ffd23f;
+    --orange: #f28c28;
+    --teal: #14a3a0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: #4fb3e8; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); }
+
+  .scene { position: fixed; inset: 0; overflow: hidden; }
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+
+  /* ---------- Sky + day/night ---------- */
+  .sky    { background: linear-gradient(to top, #c4ecff 0%, #6cc4f0 45%, #2f8fd0 100%); }
+  .sunset { background: linear-gradient(to top, #ff7b3a 0%, #ffb547 30%, #8fb8d6 75%, #3d6f9e 100%);
+            opacity: 0; animation: sunset var(--cycle) linear infinite var(--offset); }
+  .night  { background: linear-gradient(to top, #1b3358 0%, #0b1a33 55%, #040b18 100%);
+            opacity: 0; animation: night var(--cycle) linear infinite var(--offset); }
+  .stars  { opacity: 0; animation: night var(--cycle) linear infinite var(--offset); }
+  .star   { position: absolute; border-radius: 50%; background: #fff; animation: twinkle 3s ease-in-out infinite alternate; }
+
+  .orbit { position: absolute; left: 50%; bottom: var(--horizon); width: 0; height: 0;
+           animation: orbit var(--cycle) linear infinite var(--offset); }
+  .sun, .moon { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); }
+  .sun  { width: 84px; height: 84px; top: calc(-1 * min(62vh, 46vw));
+          background: radial-gradient(circle at 40% 40%, #fff3b0, #ffd23f 55%, #ffb627);
+          box-shadow: 0 0 50px 18px rgba(255, 200, 60, .55); }
+  .moon { width: 62px; height: 62px; top: min(62vh, 46vw);
+          background:
+            radial-gradient(circle at 30% 35%, #d9d4c4 0 7px, transparent 8px),
+            radial-gradient(circle at 62% 62%, #d9d4c4 0 10px, transparent 11px),
+            radial-gradient(circle at 68% 28%, #d9d4c4 0 4px, transparent 5px),
+            #f6f2e4;
+          box-shadow: 0 0 40px 8px rgba(240, 240, 220, .35); }
+
+  .cloud { position: absolute; width: 150px; height: 46px; background: #fff; border-radius: 40px;
+           animation: drift linear infinite, dim var(--cycle) linear infinite var(--offset); opacity: .92; }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50%; }
+  .cloud::before { width: 70px; height: 70px; left: 22px; top: -34px; }
+  .cloud::after  { width: 50px; height: 50px; left: 78px; top: -22px; }
+
+  /* ---------- City skyline ---------- */
+  .city { position: absolute; left: 0; right: 0; bottom: var(--horizon); height: 40vh; }
+  .bldg { position: absolute; bottom: 0; padding: 10px 8px 0; display: grid; gap: 6px; align-content: start; overflow: hidden; border-radius: 3px 3px 0 0; }
+  .bldg::before { content: ""; position: absolute; inset: 0; background: #071228;
+                  opacity: 0; animation: shade var(--cycle) linear infinite var(--offset); }
+  .win { position: relative; z-index: 1; height: 10px; border-radius: 1px; background: rgba(255,255,255,.55); }
+  .win.lit { animation: lit var(--cycle) linear infinite; }
+  .win.off { animation: off var(--cycle) linear infinite; }
+
+  .crane { position: absolute; bottom: var(--horizon); right: 8vw; height: 46vh; width: auto;
+           animation: dim var(--cycle) linear infinite var(--offset); }
+  .crane .hook { transform-box: view-box; transform-origin: 150px 44px; animation: swing 4s ease-in-out infinite alternate; }
+  .blink { animation: blink 1.2s steps(2, jump-none) infinite; }
+
+  /* ---------- Ground + road ---------- */
+  .ground { position: absolute; left: 0; right: 0; bottom: 0; height: var(--horizon);
+            background: linear-gradient(#c79a5b 0 14%, #3a3f46 14% 86%, #b9b2a6 86%); }
+  .ground::before { content: ""; position: absolute; left: 0; right: 0; top: 14%; height: 4px; background: #e9e4d8; }
+  .ground::after  { content: ""; position: absolute; left: 0; right: 0; top: calc(86% - 4px); height: 4px; background: #e9e4d8; }
+  .lane { position: absolute; left: 0; right: 0; top: calc(50% - 3px); height: 6px;
+          background: repeating-linear-gradient(90deg, var(--yellow) 0 46px, transparent 46px 86px); }
+  .shade { position: absolute; left: 0; right: 0; bottom: 0; height: var(--horizon); background: #071228;
+           opacity: 0; animation: shade var(--cycle) linear infinite var(--offset); }
+  .cone { position: absolute; bottom: calc(var(--horizon) * .86); width: 22px; height: auto; }
+
+  /* ---------- Vehicles ---------- */
+  .veh { position: absolute; left: 0; width: clamp(130px, 19vw, 240px);
+         animation: drive var(--dur) linear infinite var(--delay); transform-origin: bottom left; }
+  .veh.near { bottom: calc(var(--horizon) * .17); }
+  .veh.far  { bottom: calc(var(--horizon) * .53); animation-name: driveBack; }
+  .veh.far .body { transform: scaleX(-1); }
+  .body { position: relative; }
+  .body svg { display: block; width: 100%; height: auto; overflow: visible;
+              animation: bob .35s ease-in-out infinite alternate, dim var(--cycle) linear infinite var(--offset); }
+  .spin { transform-box: fill-box; transform-origin: center; animation: spin .55s linear infinite; }
+  .dig  { transform-box: view-box; transform-origin: 122px 62px; animation: dig 1.8s ease-in-out infinite alternate; }
+  .stripes { animation: mix 1s linear infinite; }
+  .beam { position: absolute; left: var(--hx); top: var(--hy); width: 80%; height: 50%; transform: translateY(-50%);
+          background: linear-gradient(90deg, rgba(255, 236, 170, .8), rgba(255, 236, 170, 0));
+          clip-path: polygon(0 44%, 100% 0, 100% 100%, 0 56%);
+          opacity: 0; animation: night var(--cycle) linear infinite var(--offset); }
+
+  /* ---------- Sign ---------- */
+  .sign { position: absolute; z-index: 20; top: 7vh; left: 50%; width: min(92vw, 620px);
+          transform: translateX(-50%); text-align: center; }
+  .board { background: var(--yellow); border: 4px solid var(--ink); border-radius: 18px; overflow: hidden;
+           box-shadow: 0 14px 0 rgba(0,0,0,.18), 0 24px 50px rgba(0,0,0,.25);
+           animation: sway 5s ease-in-out infinite alternate; transform-origin: top center; }
+  .tape { height: 18px; background: repeating-linear-gradient(-45deg, var(--ink) 0 14px, var(--yellow) 14px 28px);
+          background-size: 39.6px 39.6px; animation: tape 1s linear infinite; }
+  .inner { padding: clamp(18px, 3.5vw, 30px) clamp(16px, 4vw, 36px) clamp(20px, 3.5vw, 28px); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; letter-spacing: .04em;
+           background: var(--ink); color: var(--yellow); padding: 6px 14px; border-radius: 999px; }
+  .badge i { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 8px var(--orange); animation: blink 1s steps(2, jump-none) infinite; }
+  h1 { font-family: "Fredoka", system-ui, sans-serif; font-weight: 700; line-height: 1.02;
+       font-size: clamp(34px, 7.4vw, 66px); margin: 14px 0 10px; }
+  h1 .line { display: block; }
+  h1 .line + .line { color: #c2410c; }
+  h1 .word { display: inline-block; white-space: nowrap; }
+  h1 .ch { display: inline-block; animation: wave 2.6s ease-in-out infinite; animation-delay: calc(var(--i) * 70ms); }
+  .lead { font-size: clamp(15px, 2.2vw, 18px); max-width: 30em; margin: 0 auto; }
+  .progress { margin-top: 18px; }
+  .bar { height: 16px; border: 3px solid var(--ink); border-radius: 999px; background: #fff7d1; overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 0%;
+              background: repeating-linear-gradient(-45deg, var(--orange) 0 10px, #ffa94d 10px 20px);
+              background-size: 28.28px 28.28px; animation: tape .8s linear infinite; transition: width .6s ease; }
+  .status { margin-top: 8px; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; gap: 12px; }
+
+  .privacy { display: inline-block; margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--ink);
+             text-decoration: underline; text-underline-offset: 3px; }
+  .privacy:hover { color: #c2410c; }
+
+  /* ---------- Keyframes ---------- */
+  @keyframes orbit   { to { transform: rotate(360deg); } }
+  @keyframes night   { 0%, 24% { opacity: 0; } 33%, 67% { opacity: 1; } 76%, 100% { opacity: 0; } }
+  @keyframes shade   { 0%, 24% { opacity: 0; } 33%, 67% { opacity: .55; } 76%, 100% { opacity: 0; } }
+  @keyframes sunset  { 0%, 17% { opacity: 0; } 26% { opacity: 1; } 34%, 66% { opacity: 0; } 74% { opacity: 1; } 83%, 100% { opacity: 0; } }
+  @keyframes dim     { 0%, 24% { filter: brightness(1); } 33%, 67% { filter: brightness(.62); } 76%, 100% { filter: brightness(1); } }
+  @keyframes lit     { 0%, 27% { background: rgba(255,255,255,.55); box-shadow: none; }
+                       31%, 70% { background: #ffd166; box-shadow: 0 0 8px rgba(255, 209, 102, .8); }
+                       74%, 100% { background: rgba(255,255,255,.55); box-shadow: none; } }
+  @keyframes off     { 0%, 27% { background: rgba(255,255,255,.55); } 31%, 70% { background: #1d2c47; } 74%, 100% { background: rgba(255,255,255,.55); } }
+  @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
+  @keyframes drift   { from { transform: translateX(-220px); } to { transform: translateX(calc(100vw + 220px)); } }
+  @keyframes drive     { from { transform: translateX(-35vw); } to { transform: translateX(105vw); } }
+  @keyframes driveBack { from { transform: translateX(105vw) scale(.72); } to { transform: translateX(-35vw) scale(.72); } }
+  @keyframes bob     { to { transform: translateY(-1.5px); } }
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes dig     { from { transform: rotate(-10deg); } to { transform: rotate(7deg); } }
+  @keyframes mix     { to { transform: translateX(28px); } }
+  @keyframes swing   { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+  @keyframes blink   { 50% { opacity: .15; } }
+  @keyframes sway    { from { transform: rotate(-1deg); } to { transform: rotate(1deg); } }
+  @keyframes tape    { to { background-position: 39.6px 0; } }
+  @keyframes wave    { 0%, 55%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-10px) rotate(-4deg); } 40% { transform: translateY(2px) rotate(2deg); } }
+
+  @media (max-width: 600px) {
+    :root { --horizon: 30vh; }
+    .crane { right: 2vw; height: 34vh; }
+    .sign { top: 5vh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .veh { transform: translateX(var(--rx)); }
+    .veh.far { transform: translateX(var(--rx)) scale(.72); }
+  }
+</style>
+</head>
+<body>
+<div class="scene" aria-hidden="true">
+  <div class="layer sky"></div>
+  <div class="layer sunset"></div>
+  <div class="layer night"></div>
+  <div class="layer stars" id="stars"></div>
+  <div class="orbit"><div class="sun"></div><div class="moon"></div></div>
+  <div class="layer">
+    <div class="cloud" style="top:14vh; animation-duration:70s,var(--cycle); animation-delay:-20s,var(--offset)"></div>
+    <div class="cloud" style="top:26vh; transform:scale(.7); animation-duration:95s,var(--cycle); animation-delay:-60s,var(--offset)"></div>
+    <div class="cloud" style="top:8vh; animation-duration:85s,var(--cycle); animation-delay:-5s,var(--offset)"></div>
+  </div>
+  <div class="city" id="city"></div>
+  <svg class="crane" id="crane" viewBox="0 0 200 260"></svg>
+  <div class="ground"><div class="lane"></div></div>
+  <div class="shade"></div>
+  <div id="cones"></div>
+  <div id="traffic"></div>
+</div>
+
+<main class="sign">
+  <div class="board">
+    <div class="tape"></div>
+    <div class="inner">
+      <span class="badge"><i></i> albinsam.tech</span>
+      <h1 id="title" aria-label="Construction in progress">
+        <span class="line">Construction</span>
+        <span class="line">in progress</span>
+      </h1>
+      <p class="lead">Personal projects and automation tools by Albin Sam. Something new is being built here, check back soon.</p>
+      <div class="progress" aria-hidden="true">
+        <div class="bar"><span id="bar"></span></div>
+        <div class="status"><span id="task">Pouring concrete…</span><span><b id="pct">0</b>%</span></div>
+      </div>
+      <a class="privacy" href="/privacy.html">Privacy Policy</a>
+    </div>
+    <div class="tape"></div>
+  </div>
+</main>
+
+<script>
+(() => {
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  /* Wavy title letters */
+  document.querySelectorAll('#title .line').forEach((line, li) => {
+    let i = li * 12;
+    line.innerHTML = line.textContent.split(' ').map(w =>
+      '<span class="word">' + [...w].map(c => `<span class="ch" style="--i:${i++}">${c}</span>`).join('') + '</span>'
+    ).join(' ');
+    line.setAttribute('aria-hidden', 'true');
+  });
+
+  /* Stars */
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div'), size = rand(1, 3);
+    s.className = 'star';
+    s.style.cssText = `left:${rand(0,100)}%;top:${rand(0,62)}%;width:${size}px;height:${size}px;animation-duration:${rand(1.5,4)}s;animation-delay:${rand(-4,0)}s`;
+    stars.appendChild(s);
+  }
+
+  /* City skyline */
+  const city = document.getElementById('city');
+  const colors = ['#8fa9bd', '#7896ad', '#a7bccb', '#6b879d', '#9bb3c4'];
+  function buildCity() {
+    city.innerHTML = '';
+    const W = innerWidth, H = innerHeight;
+    let x = -10;
+    while (x < W) {
+      const w = Math.max(54, rand(.055, .1) * W), h = rand(.09, .26) * H;
+      const cols = Math.max(2, Math.floor((w - 16 + 6) / 14)), rows = Math.floor((h - 10) / 16);
+      const b = document.createElement('div');
+      b.className = 'bldg';
+      b.style.cssText = `left:${x}px;width:${w}px;height:${h}px;background:${colors[Math.floor(rand(0, colors.length))]};grid-template-columns:repeat(${cols},1fr)`;
+      let html = '';
+      for (let i = 0; i < cols * rows; i++) {
+        const lit = Math.random() < .45;
+        html += `<div class="win ${lit ? 'lit' : 'off'}" style="animation-delay:calc(var(--offset) + ${rand(-.8, .8).toFixed(2)}s)"></div>`;
+      }
+      b.innerHTML = html;
+      city.appendChild(b);
+      x += w + rand(2, 14);
+    }
+  }
+  buildCity();
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(buildCity, 200); });
+
+  /* Crane */
+  const zig = (x1, y1, x2, y2, horiz, step) => {
+    const pts = [];
+    if (horiz) for (let x = x1, k = 0; x <= x2; x += step, k++) pts.push(`${x},${k % 2 ? y2 : y1}`);
+    else       for (let y = y1, k = 0; y <= y2; y += step, k++) pts.push(`${k % 2 ? x2 : x1},${y}`);
+    return `<polyline points="${pts.join(' ')}" fill="none" stroke="#f6b80b" stroke-width="2"/>`;
+  };
+  document.getElementById('crane').innerHTML = `
+    <g stroke="#f6b80b" stroke-width="3" fill="none">
+      <rect x="40" y="40" width="16" height="220"/><rect x="0" y="34" width="200" height="10"/>
+      <path d="M48 6 L196 34 M48 6 L4 34" stroke-width="1.5"/>
+    </g>
+    ${zig(40, 40, 56, 260, false, 14)}${zig(0, 34, 200, 44, true, 12)}
+    <polygon points="40,34 48,6 56,34" fill="#f6b80b"/>
+    <rect x="4" y="44" width="24" height="16" fill="#555"/>
+    <rect x="56" y="44" width="18" height="15" rx="2" fill="#f28c28"/><rect x="60" y="47" width="10" height="7" fill="#bfe6ff"/>
+    <circle class="blink" cx="48" cy="6" r="4" fill="#ff3b30"/>
+    <g class="hook">
+      <rect x="144" y="44" width="12" height="6" fill="#444"/>
+      <line x1="150" y1="50" x2="150" y2="136" stroke="#333" stroke-width="1.5"/>
+      <path d="M146 136 h8 v6 h-8z" fill="#333"/>
+      <rect x="122" y="142" width="56" height="9" fill="#e07a1f"/>
+      <path d="M122 142 L150 128 L178 142" stroke="#333" fill="none" stroke-width="1"/>
+    </g>`;
+
+  /* Traffic cones on the dirt verge */
+  const cone = `<svg class="cone" viewBox="0 0 22 30" style="left:LEFT"><path d="M8 2 h6 l6 24 h-18z" fill="#f97316"/><path d="M6.5 10 h9 l1.3 5 h-11.6z M4.6 18 h12.8 l1.2 4.5 h-15.2z" fill="#fff"/><rect x="0" y="26" width="22" height="4" rx="1" fill="#333"/></svg>`;
+  document.getElementById('cones').innerHTML = ['6%', '9%', '31%', '58%', '61%', '88%'].map(l => cone.replace('LEFT', l)).join('');
+
+  /* Vehicles */
+  const wheel = (x, y, r = 16) => `<g transform="translate(${x} ${y})"><g class="spin">
+      <circle r="${r}" fill="#1f1f1f"/><circle r="${r * .5}" fill="#c9c9c9"/>
+      <rect x="-1.5" y="${-r * .5}" width="3" height="${r}" fill="#777"/><rect y="-1.5" x="${-r * .5}" height="3" width="${r}" fill="#777"/></g></g>`;
+  const beacon = (x, y) => `<rect x="${x}" y="${y}" width="10" height="6" rx="2" fill="#ff8a00" class="blink"/>`;
+
+  const dumpTruck = (c, dark) => `
+    <rect x="10" y="84" width="196" height="10" fill="#3a3a3a"/>
+    <path d="M14 40 Q40 18 70 30 Q100 16 136 40 Z" fill="#8d5a2b"/>
+    <path d="M8 40 H142 L136 86 H16 Z" fill="${c}" stroke="${dark}" stroke-width="3"/>
+    <path d="M40 44 V82 M75 44 V82 M110 44 V82" stroke="${dark}" stroke-width="3"/>
+    <path d="M146 86 V44 Q146 38 152 38 H182 L205 62 V86 Z" fill="${c}" stroke="${dark}" stroke-width="3"/>
+    <path d="M153 45 H180 L196 62 H153 Z" fill="#bfe6ff"/>
+    <rect x="202" y="72" width="10" height="14" rx="2" fill="#555"/>
+    <rect x="203" y="64" width="7" height="6" rx="1" fill="#fff6c2"/>
+    ${beacon(160, 32)}${wheel(45, 100)}${wheel(82, 100)}${wheel(176, 100)}`;
+
+  const excavator = `
+    <rect x="10" y="92" width="122" height="26" rx="13" fill="#2b2b2b"/>
+    ${wheel(25, 105, 8)}${wheel(55, 105, 8)}${wheel(85, 105, 8)}${wheel(116, 105, 8)}
+    <rect x="16" y="58" width="108" height="34" rx="5" fill="#f28c28" stroke="#c2620f" stroke-width="3"/>
+    <rect x="10" y="62" width="22" height="26" rx="3" fill="#d9701a"/>
+    <rect x="76" y="24" width="44" height="38" rx="5" fill="#f28c28" stroke="#c2620f" stroke-width="3"/>
+    <rect x="83" y="30" width="30" height="22" rx="2" fill="#bfe6ff"/>
+    <rect x="119" y="38" width="5" height="5" fill="#fff6c2"/>
+    ${beacon(88, 17)}
+    <g class="dig">
+      <path d="M116 64 L168 16 L180 24 L130 72 Z" fill="#f6b80b" stroke="#c99000" stroke-width="2"/>
+      <g><path d="M168 16 L206 56 L196 64 L162 28 Z" fill="#f6b80b" stroke="#c99000" stroke-width="2"/>
+         <path d="M194 56 L216 66 L208 88 L186 80 Z" fill="#555"/>
+         <path d="M208 88 l-4 6 M200 85 l-4 6 M192 82 l-4 6" stroke="#555" stroke-width="3"/></g>
+    </g>`;
+
+  const mixer = `
+    <defs><clipPath id="drumClip"><ellipse cx="78" cy="56" rx="64" ry="28" transform="rotate(-8 78 56)"/></clipPath></defs>
+    <rect x="10" y="84" width="196" height="10" fill="#3a3a3a"/>
+    <path d="M30 84 L40 70 M120 84 L110 72" stroke="#555" stroke-width="5"/>
+    <g clip-path="url(#drumClip)">
+      <rect x="0" y="20" width="160" height="80" fill="#eef3f6"/>
+      <g class="stripes">${Array.from({ length: 9 }, (_, i) => `<path d="M${-40 + i * 28} 100 L${-20 + i * 28} 10 L${-6 + i * 28} 10 L${-26 + i * 28} 100 Z" fill="#14a3a0"/>`).join('')}</g>
+    </g>
+    <ellipse cx="78" cy="56" rx="64" ry="28" transform="rotate(-8 78 56)" fill="none" stroke="#0f7c7a" stroke-width="3"/>
+    <path d="M146 86 V44 Q146 38 152 38 H182 L205 62 V86 Z" fill="#14a3a0" stroke="#0f7c7a" stroke-width="3"/>
+    <path d="M153 45 H180 L196 62 H153 Z" fill="#bfe6ff"/>
+    <rect x="202" y="72" width="10" height="14" rx="2" fill="#555"/>
+    <rect x="203" y="64" width="7" height="6" rx="1" fill="#fff6c2"/>
+    ${beacon(160, 32)}${wheel(42, 100)}${wheel(78, 100)}${wheel(176, 100)}`;
+
+  const roller = `
+    <rect x="44" y="14" width="72" height="8" rx="3" fill="#f28c28"/>
+    <rect x="52" y="20" width="5" height="44" fill="#444"/><rect x="103" y="20" width="5" height="44" fill="#444"/>
+    <rect x="108" y="26" width="6" height="5" fill="#fff6c2"/>
+    ${beacon(74, 7)}
+    <path d="M28 92 V62 Q28 58 32 58 H124 V92 Z" fill="#f6b80b" stroke="#c99000" stroke-width="3"/>
+    <rect x="66" y="48" width="22" height="12" rx="3" fill="#333"/>
+    <path d="M120 64 H176 V80 H120 Z" fill="#f6b80b" stroke="#c99000" stroke-width="3"/>
+    <rect x="34" y="68" width="40" height="5" fill="#1c1c1c" opacity=".25"/>
+    ${wheel(54, 98, 20)}
+    <g transform="translate(176 92)"><g class="spin"><circle r="26" fill="#5a5f66"/><circle r="26" fill="none" stroke="#3d4147" stroke-width="5"/><rect x="-2" y="-14" width="4" height="28" fill="#3d4147"/><rect y="-2" x="-14" height="4" width="28" fill="#3d4147"/></g></g>`;
+
+  const fleet = [
+    { svg: excavator,                       lane: 'near', dur: 26, delay: -2,  hx: '55%', hy: '34%', rx: '8vw'  },
+    { svg: dumpTruck('#f6b80b', '#c99000'), lane: 'near', dur: 26, delay: -11, hx: '95%', hy: '56%', rx: '42vw' },
+    { svg: mixer,                           lane: 'near', dur: 26, delay: -19, hx: '95%', hy: '56%', rx: '74vw' },
+    { svg: roller,                          lane: 'far',  dur: 34, delay: -6,  hx: '50%', hy: '24%', rx: '22vw' },
+    { svg: dumpTruck('#f28c28', '#c2620f'), lane: 'far',  dur: 34, delay: -22, hx: '95%', hy: '56%', rx: '62vw' },
+  ];
+  document.getElementById('traffic').innerHTML = fleet.map(v => `
+    <div class="veh ${v.lane}" style="--dur:${v.dur}s;--delay:${v.delay}s;--rx:${v.rx};z-index:${v.lane === 'far' ? 9 : 10}">
+      <div class="body" style="--hx:${v.hx};--hy:${v.hy}"><div class="beam"></div><svg viewBox="0 0 220 120">${v.svg}</svg></div>
+    </div>`).join('');
+
+  /* Playful progress bar that never quite finishes */
+  const tasks = ['Pouring concrete…', 'Laying bricks…', 'Painting the lines…', 'Tightening bolts…', 'Polishing pixels…', 'Almost there…'];
+  const bar = document.getElementById('bar'), pct = document.getElementById('pct'), task = document.getElementById('task');
+  let p = 0;
+  const tick = () => {
+    if (p < 99) p = Math.min(99, p + Math.ceil(rand(1, 6)));
+    bar.style.width = p + '%';
+    pct.textContent = p;
+    task.textContent = p >= 99 ? 'Almost there…' : tasks[Math.min(tasks.length - 2, Math.floor(p / 20))];
+    if (p < 99) setTimeout(tick, rand(500, 1300));
+  };
+  setTimeout(tick, 600);
+})();
+</script>
+</body>
+</html>

@@ -64,7 +64,7 @@
   .win.lit { animation: lit var(--cycle) linear infinite; }
   .win.off { animation: off var(--cycle) linear infinite; }
 
-  .crane { position: absolute; bottom: var(--horizon); right: 8vw; height: 46vh; width: auto;
+  .crane { position: absolute; bottom: var(--horizon); right: 8vw; height: 46vh; width: auto; cursor: pointer;
            animation: dim var(--cycle) linear infinite var(--offset); }
   .crane .hook { transform-box: view-box; transform-origin: 150px 44px; animation: swing 4s ease-in-out infinite alternate; }
   .blink { animation: blink 1.2s steps(2, jump-none) infinite; }
@@ -78,7 +78,8 @@
           background: repeating-linear-gradient(90deg, var(--yellow) 0 46px, transparent 46px 86px); }
   .shade { position: absolute; left: 0; right: 0; bottom: 0; height: var(--horizon); background: #071228;
            opacity: 0; animation: shade var(--cycle) linear infinite var(--offset); }
-  .cone { position: absolute; bottom: calc(var(--horizon) * .86); width: 22px; height: auto; }
+  .cone { position: absolute; bottom: calc(var(--horizon) * .86); width: 22px; height: auto; cursor: pointer; transition: transform .15s; }
+  .cone:hover { transform: scale(1.18) translateY(-2px); }
 
   /* ---------- Vehicles ---------- */
   .veh { position: absolute; left: 0; width: clamp(130px, 19vw, 240px);
@@ -126,6 +127,66 @@
   .privacy { display: inline-block; margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--ink);
              text-decoration: underline; text-underline-offset: 3px; }
   .privacy:hover { color: #c2410c; }
+
+  /* ---------- Hidden games & easter eggs ---------- */
+  .worker { position: absolute; bottom: calc(var(--horizon) * .17); width: 54px; z-index: 15;
+            animation: walkIn 2.2s ease-out forwards; cursor: pointer; }
+  .worker svg { width: 100%; display: block; filter: drop-shadow(0 4px 3px rgba(0,0,0,.25)); }
+  .bubble { position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+            background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 6px 12px;
+            font-family: "Fredoka", system-ui, sans-serif; font-weight: 700; font-size: 14px; color: var(--ink);
+            box-shadow: 0 6px 0 rgba(0,0,0,.15); animation: bubbleIn .3s ease .2s both, bob2 1.4s ease-in-out .5s infinite alternate; }
+  .bubble::after { content: ""; position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%);
+                   border: 8px solid transparent; border-top-color: var(--ink); }
+
+  .ovl { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+         background: rgba(10, 10, 15, .72); opacity: 0; animation: fadeIn2 .25s forwards; padding: 16px; }
+  .ovl-card { width: min(94vw, 560px); background: var(--yellow); border: 4px solid var(--ink); border-radius: 18px;
+              box-shadow: 0 24px 50px rgba(0,0,0,.4); overflow: hidden; font-family: system-ui, sans-serif; }
+  .ovl-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--ink); }
+  .ovl-head h2 { font-family: "Fredoka", system-ui, sans-serif; color: var(--yellow); font-size: 18px; margin: 0; }
+  .ovl-close { background: none; border: none; color: var(--yellow); font-size: 20px; cursor: pointer; line-height: 1; padding: 4px 8px; }
+  .ovl-body { padding: 16px; color: var(--ink); }
+  .ovl-stage { position: relative; height: min(50vh, 360px); background: linear-gradient(#bfe6ff, #eaf7ff 70%, #cfead0);
+               border-radius: 12px; overflow: hidden; border: 3px solid var(--ink); touch-action: none; }
+  .ovl-hud { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
+  .ovl-foot { text-align: center; padding-top: 10px; font-size: 13px; color: #5a4a1f; }
+  .ovl-btn { font: inherit; font-weight: 700; background: var(--ink); color: var(--yellow); border: none; border-radius: 999px;
+             padding: 8px 18px; cursor: pointer; margin-top: 10px; }
+  .ovl-end { text-align: center; padding: 20px 0; }
+  .ovl-end .score { font-family: "Fredoka", system-ui, sans-serif; font-size: 28px; font-weight: 700; }
+
+  .wc-cone { position: absolute; bottom: -6px; width: 42px; transform: translateY(70%); transition: transform .15s; cursor: pointer; }
+  .wc-cone.up { transform: translateY(0); }
+  .wc-cone.smash { animation: coneSmash .35s ease forwards; }
+  .wc-truck { position: absolute; bottom: 4px; width: 90px; }
+  .wc-warn { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+             background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 6px 14px;
+             font-family: "Fredoka", system-ui, sans-serif; font-weight: 700; font-size: 14px; color: var(--ink);
+             animation: warnPulse .25s ease both; }
+  .wc-warn::after { content: ""; position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%);
+                     border: 7px solid transparent; border-top-color: var(--ink); }
+  .wc-boom { position: absolute; bottom: -2px; width: 40px; height: 40px; font-size: 30px; line-height: 40px;
+             text-align: center; pointer-events: none; animation: boomPop .45s ease forwards; }
+
+  .rn-ground { position: absolute; left: 0; right: 0; bottom: 36px; height: 4px; background: var(--ink); }
+  .rn-player { position: absolute; left: 40px; bottom: 36px; width: 34px; }
+  .rn-obstacle { position: absolute; bottom: 36px; width: 22px; right: -30px; }
+
+  .cg-crane { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 60px; opacity: .85; }
+  .cg-brick { position: absolute; top: 40px; width: 26px; height: 16px; background: #c2410c; border: 2px solid #7c2d12; border-radius: 2px; }
+  .cg-barrow { position: absolute; bottom: 6px; width: 82px; }
+
+  @keyframes walkIn   { from { left: -60px; } to { left: var(--stop, 46vw); } }
+  @keyframes bubbleIn { from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(.7); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+  @keyframes bob2     { to { transform: translateX(-50%) translateY(-5px); } }
+  @keyframes fadeIn2  { to { opacity: 1; } }
+  @keyframes wcDrive  { from { left: -100px; } to { left: 110%; } }
+  @keyframes coneSmash { 0% { transform: translateY(0) scaleY(1); opacity: 1; } 40% { transform: translateY(6px) scaleY(.35); }
+                          100% { transform: translateY(14px) scaleY(.1); opacity: 0; } }
+  @keyframes warnPulse { from { opacity: 0; transform: translateX(-50%) scale(.7); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+  @keyframes boomPop   { 0% { transform: scale(.3); opacity: 0; } 45% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+  @keyframes confettiFall { to { transform: translateY(110vh) rotate(540deg); opacity: .2; } }
 
   /* ---------- Keyframes ---------- */
   @keyframes orbit   { to { transform: rotate(360deg); } }
@@ -364,6 +425,291 @@
     if (p < 99) setTimeout(tick, rand(500, 1300));
   };
   setTimeout(tick, 600);
+})();
+</script>
+
+<script>
+(() => {
+  const cones = document.getElementById('cones');
+  const crane = document.getElementById('crane');
+  const scene = document.querySelector('.scene');
+
+  /* ---------- Overlay helper ---------- */
+  function openOverlay(title) {
+    const ovl = document.createElement('div');
+    ovl.className = 'ovl';
+    ovl.innerHTML = `<div class="ovl-card">
+      <div class="ovl-head"><h2>${title}</h2><button class="ovl-close" aria-label="Close">✕</button></div>
+      <div class="ovl-body"></div>
+    </div>`;
+    document.body.appendChild(ovl);
+    const close = () => { ovl.remove(); document.removeEventListener('keydown', onEsc); };
+    ovl.querySelector('.ovl-close').onclick = close;
+    ovl.addEventListener('click', e => { if (e.target === ovl) close(); });
+    const onEsc = e => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onEsc);
+    return { body: ovl.querySelector('.ovl-body'), close };
+  }
+
+  /* ================= Game 1: Whack-a-Cone (click any cone on the road) ================= */
+  cones.addEventListener('click', e => { if (e.target.closest('.cone')) startWhack(); });
+
+  function startWhack() {
+    const { body, close } = openOverlay('🚧 Whack-a-Cone');
+    body.innerHTML = `<div class="ovl-hud"><span>Score: <b id="wcScore">0</b></span><span>Time: <b id="wcTime">35</b>s</span></div>
+      <div class="ovl-stage" id="wcStage"></div>
+      <div class="ovl-foot">Tap the cones — listen for the beep, the truck squashes whatever's still up!</div>`;
+    const stage = body.querySelector('#wcStage'), scoreEl = body.querySelector('#wcScore'), timeEl = body.querySelector('#wcTime');
+    let score = 0, timeLeft = 35, running = true;
+    const slots = [8, 24, 40, 56, 72, 88].map(left => {
+      const c = document.createElement('div');
+      c.className = 'wc-cone';
+      c.style.left = left + '%';
+      c.innerHTML = `<svg viewBox="0 0 22 30"><path d="M8 2 h6 l6 24 h-18z" fill="#f97316"/><path d="M6.5 10 h9 l1.3 5 h-11.6z" fill="#fff"/><rect y="26" width="22" height="4" rx="1" fill="#333"/></svg>`;
+      c.onclick = () => {
+        if (!running || !c.classList.contains('up') || c.classList.contains('smash')) return;
+        score++; scoreEl.textContent = score;
+        c.classList.remove('up');
+      };
+      stage.appendChild(c);
+      return c;
+    });
+
+    /* Cones pop up and STAY up until clicked (score) or smashed by a truck (no score) */
+    function popLoop() {
+      if (!running) return;
+      const down = slots.filter(s => !s.classList.contains('up'));
+      if (down.length) down[Math.floor(Math.random() * down.length)].classList.add('up');
+      setTimeout(popLoop, 500 + Math.random() * 450);
+    }
+    popLoop();
+
+    /* Trucks are rarer, and warn with a "Beep beep!" bubble before they come through */
+    function truckLoop() {
+      if (!running) return;
+      const warn = document.createElement('div');
+      warn.className = 'wc-warn';
+      warn.textContent = 'Beep beep! 🚛';
+      stage.appendChild(warn);
+      setTimeout(() => {
+        warn.remove();
+        if (running) runTruck();
+      }, 1100);
+    }
+    function runTruck() {
+      const t = document.createElement('div');
+      t.className = 'wc-truck';
+      t.innerHTML = `<svg viewBox="0 0 90 40"><rect x="2" y="10" width="54" height="22" fill="#f6b80b" stroke="#c99000" stroke-width="2"/><path d="M56 32 V16 H76 L86 28 V32 Z" fill="#f6b80b" stroke="#c99000" stroke-width="2"/><circle cx="22" cy="34" r="6" fill="#222"/><circle cx="68" cy="34" r="6" fill="#222"/></svg>`;
+      stage.appendChild(t);
+      const duration = 2200;
+      t.style.animation = `wcDrive ${duration}ms linear forwards`;
+      const start = performance.now(), smashed = new Set();
+      function check(now) {
+        if (!running) { t.remove(); return; }
+        const tr = t.getBoundingClientRect();
+        slots.forEach(s => {
+          if (s.classList.contains('up') && !smashed.has(s)) {
+            const sr = s.getBoundingClientRect();
+            if (tr.left < sr.right - 6 && tr.right > sr.left + 6) { smashed.add(s); smashCone(s); }
+          }
+        });
+        if (now - start < duration) requestAnimationFrame(check);
+        else { t.remove(); setTimeout(truckLoop, 4000 + Math.random() * 3000); }
+      }
+      requestAnimationFrame(check);
+    }
+    function smashCone(s) {
+      s.classList.add('smash');
+      const boom = document.createElement('div');
+      boom.className = 'wc-boom';
+      boom.textContent = '💥';
+      boom.style.left = s.style.left;
+      stage.appendChild(boom);
+      setTimeout(() => boom.remove(), 450);
+      setTimeout(() => s.classList.remove('up', 'smash'), 320);
+    }
+    setTimeout(truckLoop, 3500);
+
+    const timer = setInterval(() => {
+      timeLeft--; timeEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timer); running = false;
+        body.innerHTML = `<div class="ovl-end"><p class="score">Score: ${score}</p><button class="ovl-btn" id="wcAgain">Play again</button></div>`;
+        body.querySelector('#wcAgain').onclick = () => { close(); startWhack(); };
+      }
+    }, 1000);
+  }
+
+  /* ================= Game 2: Hard-Hat Dash (worker greets you after idling) ================= */
+  let idleTimer, workerEl;
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    if (!workerEl) idleTimer = setTimeout(showWorker, 45000);
+  }
+  ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, resetIdle, { passive: true }));
+  resetIdle();
+
+  function showWorker() {
+    if (workerEl) return;
+    workerEl = document.createElement('div');
+    workerEl.className = 'worker';
+    workerEl.style.setProperty('--stop', (28 + Math.random() * 44) + 'vw');
+    workerEl.innerHTML = `<div class="bubble">Wanna play? 🎮</div>
+      <svg viewBox="0 0 40 60"><circle cx="20" cy="12" r="9" fill="#ffcf9e"/>
+        <path d="M9 10 a11 7 0 0 1 22 0 z" fill="#f6b80b"/>
+        <rect x="10" y="22" width="20" height="22" rx="4" fill="#2563eb"/>
+        <rect x="6" y="24" width="8" height="18" rx="3" fill="#ffcf9e"/><rect x="26" y="24" width="8" height="18" rx="3" fill="#ffcf9e"/>
+        <rect x="11" y="44" width="8" height="14" rx="2" fill="#374151"/><rect x="21" y="44" width="8" height="14" rx="2" fill="#374151"/></svg>`;
+    scene.appendChild(workerEl);
+    workerEl.onclick = () => { workerEl.remove(); workerEl = null; startRunner(); };
+    setTimeout(() => { if (workerEl) { workerEl.remove(); workerEl = null; resetIdle(); } }, 9000);
+  }
+
+  function startRunner() {
+    const { body, close } = openOverlay('👷 Hard-Hat Dash');
+    const best = Number(localStorage.getItem('hhBest') || 0);
+    body.innerHTML = `<div class="ovl-hud"><span>Score: <b id="rnScore">0</b></span><span>Best: <b id="rnBest">${best}</b></span></div>
+      <div class="ovl-stage" id="rnStage">
+        <div class="rn-ground"></div>
+        <div class="rn-player" id="rnPlayer"><svg viewBox="0 0 40 60"><circle cx="20" cy="12" r="9" fill="#ffcf9e"/><path d="M9 10 a11 7 0 0 1 22 0 z" fill="#f6b80b"/><rect x="10" y="22" width="20" height="22" rx="4" fill="#2563eb"/><rect x="11" y="44" width="8" height="14" rx="2" fill="#374151"/><rect x="21" y="44" width="8" height="14" rx="2" fill="#374151"/></svg></div>
+      </div>
+      <div class="ovl-foot">Press Space / tap to jump.</div>`;
+    const stage = body.querySelector('#rnStage'), player = body.querySelector('#rnPlayer'), scoreEl = body.querySelector('#rnScore');
+    let y = 0, vy = 0, jumping = false, obstacles = [], speed = 4, frame = 0, running = true, raf;
+
+    function jump() { if (!jumping && running) { jumping = true; vy = 11; } }
+    stage.addEventListener('pointerdown', jump);
+    function onKey(e) { if (e.code === 'Space') { e.preventDefault(); jump(); } }
+    document.addEventListener('keydown', onKey);
+
+    function spawn() {
+      if (!running) return;
+      const o = document.createElement('div');
+      o.className = 'rn-obstacle';
+      o.innerHTML = `<svg viewBox="0 0 22 30"><path d="M8 2 h6 l6 24 h-18z" fill="#f97316"/></svg>`;
+      stage.appendChild(o);
+      obstacles.push({ el: o, x: stage.clientWidth });
+      setTimeout(spawn, Math.max(350, 1000 - speed * 30 + Math.random() * 500));
+    }
+    spawn();
+
+    function loop() {
+      if (!running) return;
+      if (jumping) {
+        y += vy; vy -= .7;
+        if (y <= 0) { y = 0; jumping = false; vy = 0; }
+        player.style.bottom = (36 + y) + 'px';
+      }
+      obstacles.forEach(o => { o.x -= speed; o.el.style.right = (stage.clientWidth - o.x) + 'px'; });
+      obstacles = obstacles.filter(o => o.x > -30 || (o.el.remove(), false));
+
+      const pr = player.getBoundingClientRect();
+      for (const o of obstacles) {
+        const r = o.el.getBoundingClientRect();
+        if (pr.left < r.right - 6 && pr.right - 6 > r.left && pr.bottom > r.top + 6) { gameOver(); return; }
+      }
+      frame++; scoreEl.textContent = Math.floor(frame / 5);
+      speed = 4 + Math.floor(frame / 300) * .6;
+      raf = requestAnimationFrame(loop);
+    }
+    raf = requestAnimationFrame(loop);
+
+    function gameOver() {
+      running = false;
+      document.removeEventListener('keydown', onKey);
+      const finalScore = Math.floor(frame / 5), best2 = Math.max(finalScore, best);
+      localStorage.setItem('hhBest', best2);
+      body.innerHTML = `<div class="ovl-end"><p class="score">Score: ${finalScore}</p>
+        <p style="font-size:14px;color:#5a4a1f">Best: ${best2}</p>
+        <button class="ovl-btn" id="rnAgain">Play again</button></div>`;
+      body.querySelector('#rnAgain').onclick = () => { close(); startRunner(); };
+    }
+  }
+
+  /* ================= Game 3: Catch the Bricks (click the crane) ================= */
+  crane.addEventListener('click', startCatch);
+
+  function startCatch() {
+    const { body, close } = openOverlay('🧱 Catch the Bricks');
+    body.innerHTML = `<div class="ovl-hud"><span>Score: <b id="cgScore">0</b></span><span>Lives: <b id="cgLives">3</b></span></div>
+      <div class="ovl-stage" id="cgStage">
+        <svg class="cg-crane" viewBox="0 0 60 40"><rect x="26" y="0" width="8" height="40" fill="#f6b80b"/><rect x="0" y="4" width="60" height="6" fill="#f6b80b"/></svg>
+        <div class="cg-barrow" id="cgBarrow"><svg viewBox="0 0 54 34"><ellipse cx="18" cy="26" rx="14" ry="6" fill="#9ca3af"/><path d="M8 10 h30 l-6 16 h-20 z" fill="#f97316"/><circle cx="12" cy="30" r="5" fill="#333"/></svg></div>
+      </div>
+      <div class="ovl-foot">Move the wheelbarrow with your mouse or ← →.</div>`;
+    const stage = body.querySelector('#cgStage'), barrow = body.querySelector('#cgBarrow');
+    const scoreEl = body.querySelector('#cgScore'), livesEl = body.querySelector('#cgLives');
+    let score = 0, lives = 3, running = true, bricks = [], barrowX = 50, keys = {};
+
+    function place() { barrow.style.left = `calc(${barrowX}% - 41px)`; }
+    place();
+    stage.addEventListener('pointermove', e => {
+      const r = stage.getBoundingClientRect();
+      barrowX = Math.min(96, Math.max(4, ((e.clientX - r.left) / r.width) * 100));
+      place();
+    });
+    function onKey(e) { keys[e.key] = e.type === 'keydown'; }
+    document.addEventListener('keydown', onKey); document.addEventListener('keyup', onKey);
+
+    function spawnBrick() {
+      if (!running) return;
+      const left = 10 + Math.random() * 80;
+      const b = document.createElement('div');
+      b.className = 'cg-brick';
+      b.style.left = left + '%'; b.style.top = '40px';
+      stage.appendChild(b);
+      bricks.push({ el: b, x: left, y: 40, speed: .7 + Math.random() * .5 });
+      setTimeout(spawnBrick, 950 + Math.random() * 500);
+    }
+    spawnBrick();
+
+    function loop() {
+      if (!running) return;
+      if (keys['ArrowLeft']) barrowX = Math.max(4, barrowX - 1.6);
+      if (keys['ArrowRight']) barrowX = Math.min(96, barrowX + 1.6);
+      place();
+      const stageH = stage.clientHeight;
+      bricks.forEach(b => { b.y += b.speed; b.el.style.top = b.y + 'px'; });
+      bricks = bricks.filter(b => {
+        if (b.y <= stageH - 30) return true;
+        const caught = Math.abs(b.x - barrowX) < 16;
+        b.el.remove();
+        if (caught) { score++; scoreEl.textContent = score; }
+        else { lives--; livesEl.textContent = lives; if (lives <= 0) gameOver(); }
+        return false;
+      });
+      if (running) requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    function gameOver() {
+      running = false;
+      document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
+      body.innerHTML = `<div class="ovl-end"><p class="score">Score: ${score}</p><button class="ovl-btn" id="cgAgain">Play again</button></div>`;
+      body.querySelector('#cgAgain').onclick = () => { close(); startCatch(); };
+    }
+  }
+
+  /* ================= Easter egg: Konami code → confetti ================= */
+  const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let kPos = 0;
+  addEventListener('keydown', e => {
+    kPos = (e.key === KONAMI[kPos]) ? kPos + 1 : (e.key === KONAMI[0] ? 1 : 0);
+    if (kPos === KONAMI.length) { kPos = 0; celebrate(); }
+  });
+  function celebrate() {
+    const colors = ['#ffd23f', '#f28c28', '#14a3a0', '#fff'];
+    for (let i = 0; i < 70; i++) {
+      const p = document.createElement('div');
+      p.style.cssText = `position:fixed;top:-10px;left:${Math.random()*100}vw;width:8px;height:8px;background:${colors[i%4]};z-index:200;border-radius:2px;pointer-events:none;transform:rotate(${Math.random()*360}deg);animation:confettiFall ${1.6+Math.random()}s ease-in forwards`;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2800);
+    }
+  }
+
+  /* ================= Easter egg: console message ================= */
+  console.log('%c👋 Hey, curious dev.', 'font-size:18px;font-weight:bold;color:#f28c28');
+  console.log('%cThis site is by Albin Sam — still under construction, like everything worth building.\nWant to build something together? sentripa26@gmail.com\n\nPS: try the arrow keys + B + A on this page. 😉', 'font-size:13px;color:#14a3a0');
 })();
 </script>
 </body>
